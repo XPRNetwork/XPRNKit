@@ -1,7 +1,9 @@
 "use client";
 import classNames from "classnames";
 import * as React from "react";
-import {XPRNAvatar, XPRNAvatarFallback, XPRNAvatarImage} from "./xprn-avatar";
+import { XPRNAvatar } from "./xprn-avatar";
+import {XPRNSessionActor} from "./xprn-session-actor";
+import {XPRNSessionName} from "./xprn-session-name";
 import {useXPRN} from "../../providers/XPRNProvider";
 import {XPRNConnectButton} from "./../xprn-session";
 
@@ -10,8 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "./../ui/dropdown";
-import {XPRNSessionActor} from "./xprn-session-actor";
-import {XPRNSessionName} from "./xprn-session-name";
+
 
 type XPRNIdentityProps = React.HTMLAttributes<HTMLDivElement> & {
   showLogout?: boolean;
