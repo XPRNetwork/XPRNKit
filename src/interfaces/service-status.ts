@@ -1,0 +1,1 @@
+export type ServiceStatus = 'idle' | 'pending' | 'success' | 'fail'
