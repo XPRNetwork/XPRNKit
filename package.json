@@ -1,6 +1,6 @@
 {
   "name": "xprnkit",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "source": "src/index.ts",
   "main": "build/index.js",
   "type": "module",
