@@ -6,8 +6,6 @@ import {useXPRNSwap, XPRNSwapProvider} from "./xprn-swap-provider";
 import {XPRNPairsSelector} from "./xprn-swap-pair-selector";
 import {type XPRNMarketProviderQuoteFilter} from ".";
 import {XPRNSwapFields} from "./xprn-swap-fields";
-import {XPRNTransaction} from "../xprn-transaction";
-import {XPRNSwapSideSelector} from "./xprn-swap-side-selector";
 import { XPRNSwapButton } from "./xprn-swap-button";
 type XPRNSwapLayoutProps = React.HTMLAttributes<HTMLDivElement> & {
   filters?: XPRNMarketProviderQuoteFilter;
