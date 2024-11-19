@@ -60,6 +60,7 @@ type XPRNProviderContext = {
     onProfile?: (profile: XPRNProfile) => void
   ) => void;
   disconnect: () => void;
+  updateConfig:(config:Partial<XPRProviderConfig>)=>void
 };
 
 const XPRNContext = React.createContext<XPRNProviderContext>({
@@ -72,7 +73,8 @@ const XPRNContext = React.createContext<XPRNProviderContext>({
   disconnect: () => {},
   addTransactionError(rawMessage) {},
   authentication: null,
-  authenticate: callback => {},
+  authenticate: callback => { },
+  updateConfig:(config:Partial<XPRProviderConfig>)=>{}
 });
 export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
   children,
@@ -87,6 +89,7 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
   );
   const [profile, setProfile] = useState<XPRNProfile>();
   const [errorsStack, setErrorStack] = useState<XPRNTransactionsError[]>();
+  const [currentConfig, setCurrentConfig] = useState<XPRProviderConfig>();
   const onSessionRef = useRef<(session: LinkSession) => void>();
   const onProfileRef = useRef<(profile: XPRNProfile) => void>();
 
@@ -96,19 +99,22 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
       onSession?: (session: LinkSession) => void,
       onProfile?: (profile: XPRNProfile) => void
     ) => {
+      if (!currentConfig) return;
       ConnectWallet({
         linkOptions: {
-          endpoints: config.endpoints,
-          restoreSession: config.restoreSession,
+          endpoints: currentConfig.endpoints,
+          restoreSession: currentConfig.restoreSession,
+          
         },
         selectorOptions: {
-          appName: config.dAppName,
+          appName: currentConfig.dAppName,
+          enabledWalletTypes:['webauth','proton']
         },
         transportOptions: {
-          requestAccount: config.requesterAccount,
+          requestAccount: currentConfig.requesterAccount,
+          
         },
       }).then(res => {
-        console.log(config.restoreSession,res,"Restore or not i should have this ")
         onSessionRef.current = onSession;
         onProfileRef.current = onProfile;
         if (res.link) setLink(res.link);
@@ -117,7 +123,7 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
             return res.session;
           });
           const api = new ApiClass(
-            config.apiMode && config.apiMode == "testnet"
+            currentConfig.apiMode && currentConfig.apiMode == "testnet"
               ? "proton-test"
               : "proton"
           );
@@ -136,7 +142,7 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
         }
       });
     },
-    [config,setProfile]
+    [currentConfig,setProfile]
   );
 
   const disconnect = useCallback(
@@ -214,6 +220,10 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
     [setAuthentication, session, config]
   );
 
+  const updateConfig = useCallback((mutatedConfig:Partial<XPRNProviderContext>) => {
+    setCurrentConfig({ ...config, ...mutatedConfig });
+  },[config])
+
   useEffect(() => {
     if (session) {
       if (config.enforceAuthentication && config.authenticationUrl) {
@@ -240,14 +250,14 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
   }, [profile]);
 
   useEffect(() => {
+    setCurrentConfig(config);
     if (!config.restoreSession) return;
-    console.log('should connect here is restore session is set to true')
     connect();
   },[config])
 
   const providerValue = useMemo(() => {
     return {
-      config,
+      currentConfig,
       session,
       link,
       profile,
@@ -256,6 +266,7 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
       connect,
       disconnect,
       authenticate,
+      updateConfig,
       authentication,
     };
   }, [session, link, profile, connect, disconnect,authenticate,authentication]);
