@@ -99,7 +99,7 @@ const XPRNTransaction = React.forwardRef<
       <>
         {!session && (
           <Comp
-            onClick={() => connect(false,false,()=>pushTransaction())}
+            onClick={() => connect(()=>pushTransaction())}
             
             className={cn(XPRNTransactionVariants({variant, size, className}))}
             ref={ref}

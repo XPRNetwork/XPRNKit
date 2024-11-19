@@ -37,6 +37,7 @@ export type XPRProviderConfig = {
   authenticationUrl?: string;
   enforceAuthentication?: boolean;
   apiMode: "testnet" | "mainnet";
+  restoreSession?:boolean
 };
 
 type XPRNProviderProps = {
@@ -45,6 +46,7 @@ type XPRNProviderProps = {
 };
 
 type XPRNProviderContext = {
+  config?: XPRProviderConfig;
   session: LinkSession | null;
   link: ProtonWebLink | null;
   profile: XPRNProfile | null;
@@ -54,8 +56,6 @@ type XPRNProviderContext = {
   authenticate: (success: (res:any) => void, fail: (e:any) => void) => void;
   addTransactionError: (rawMessage: string) => void;
   connect: (
-    restore?: boolean,
-    silent?: boolean,
     onSession?: (session: LinkSession) => void,
     onProfile?: (profile: XPRNProfile) => void
   ) => void;
@@ -92,15 +92,14 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
 
   const connect = useCallback(
     (
-      restore?: boolean,
-      silent?: boolean,
+      
       onSession?: (session: LinkSession) => void,
       onProfile?: (profile: XPRNProfile) => void
     ) => {
       ConnectWallet({
         linkOptions: {
           endpoints: config.endpoints,
-          restoreSession: restore ? true : false,
+          restoreSession: config.restoreSession,
         },
         selectorOptions: {
           appName: config.dAppName,
@@ -109,6 +108,7 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
           requestAccount: config.requesterAccount,
         },
       }).then(res => {
+        console.log(config.restoreSession,res,"Restore or not i should have this ")
         onSessionRef.current = onSession;
         onProfileRef.current = onProfile;
         if (res.link) setLink(res.link);
@@ -239,8 +239,15 @@ export const XPRNProvider: React.FunctionComponent<XPRNProviderProps> = ({
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (!config.restoreSession) return;
+    console.log('should connect here is restore session is set to true')
+    connect();
+  },[config])
+
   const providerValue = useMemo(() => {
     return {
+      config,
       session,
       link,
       profile,
